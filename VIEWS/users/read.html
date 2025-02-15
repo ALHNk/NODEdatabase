@@ -90,11 +90,12 @@
                 });
 
                 const data = await res.json();
-                alert();
 
                 if (!res.ok) {
                     throw new Error(data.message || "Login failed!");
                 }
+
+                localStorage.setItem('user_id', data.user.userId)
 
                 alert("Login successful! Welcome, " + data.user.name);
                 window.location.href = "/dashboard"; // Redirect after login
