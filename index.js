@@ -9,18 +9,25 @@ const orderRouter = require('./routers/OrderRouter')
 const productRouter = require('./routers/productRouter')
 
 
+const mongoose = require("mongoose");
+
 const connectDB = async () => {
     try {
         await mongoose.connect(process.env.MONGO_URI, {
             useNewUrlParser: true,
-            useUnifiedTopology: true
+            useUnifiedTopology: true,
+            tls: true, 
+            tlsAllowInvalidCertificates: false,  
+            serverSelectionTimeoutMS: 6000, 
         });
         console.log("MongoDB Connected...");
     } catch (error) {
-        console.error("MongoDB Connection Error:", error);
+        console.error(" MongoDB Connection Error:", error);
         process.exit(1);
     }
 };
+
+module.exports = connectDB;
 
 connectDB();
 const app = express();
