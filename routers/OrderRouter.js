@@ -1,15 +1,20 @@
 const express = require("express");
 const OrderDAO = require("../DAO/OrderDAO");
 const router = express.Router();
+const verifyToken = require('./AuthorizationMiddleware')
 
 // Get all orders for a user
 router.get("/:userId", async (req, res) => {
+
     try {
         const orders = await OrderDAO.getUserOrders(req.params.userId);
+        
         res.status(200).json(orders);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
+
+    
 });
 
 // Create a new order
@@ -37,5 +42,6 @@ router.delete("/delete:orderId", async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 });
+
 
 module.exports = router;

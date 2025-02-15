@@ -10,7 +10,8 @@ mongoose.connect(process.env.MONGO_URI, {
 // Define User Schema
 const userSchema = new mongoose.Schema({
     name: { type: String, required: true, unique: true },
-    password: { type: String, required: true }
+    password: { type: String, required: true },
+    role: { type: String, enum: ["admin", "general"], default: "general" }
 });
 
 const User = mongoose.model('users', userSchema);
@@ -18,17 +19,20 @@ const User = mongoose.model('users', userSchema);
 const UserDao = {
     // Register User
     async create(userData) {
-        const { name, password } = userData;
+        const { name, password, role } = userData;
+    
+        const existingUser = await User.findOne({ name });
+        if (existingUser) {
+            return -1
+        }
+    
         const hashedPassword = await bcrypt.hash(password, 10);
-        const user = new User({ name, password: hashedPassword });
+        const user = new User({ name, password: hashedPassword, role });
+    
         return await user.save();
     },
 
-    // Get All Users (for debugging)
-    async read() {
-        return await User.find({}, { password: 0 }); // Exclude password from results
-    },
-
+  
     // Login User (Fixing issue)
     async login(name, password) {
         const user = await User.findOne({ name });
@@ -36,7 +40,7 @@ const UserDao = {
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) throw new Error("Invalid password");
-        return { userId: user._id, name: user.name };
+        return { userId: user._id, name: user.name, role:user.role };
     }
 };
 

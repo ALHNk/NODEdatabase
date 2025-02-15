@@ -16,6 +16,14 @@ const Products = mongoose.model("Product", productSchema);
 const ProductDAO = {
     async getProducts() {
         return await Products.find({});
+    },
+    async addProduct(name, price) {
+        const newProduct = new Products({ name, price });
+        return await newProduct.save();
+    },
+
+    async deleteProduct(productId) {
+        return await Products.findByIdAndDelete(productId);
     }
 };
 

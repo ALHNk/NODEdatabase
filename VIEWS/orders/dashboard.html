@@ -22,20 +22,36 @@
         <button onclick="addOrder()">Add Order</button>
     </div>
 
+    <a href = "/admin-prod" id = "walls" style="display: none;"><button >Change Products</button></a>
+
     <script>
         const userId = localStorage.getItem('user_id'); 
+        const token = localStorage.getItem('token'); 
+        
         
         async function fetchOrders() {
             let res = await fetch(`/orders/${userId}`);
+            if(res.ok)
+            {
             let orders = await res.json();
             let orderList = document.getElementById("orderList");
             orderList.innerHTML = "";
             orders.forEach(order => {
                 let li = document.createElement("li");
                 li.innerHTML = `Product: ${order.productId.name}, Quantity: ${order.quantity}, Status: ${order.status}
-                <button onclick="deleteOrder('${order._id}')">Delete</button>`;
+                <button onclick="deleteOrder('${order._id}')">Delete</button>;`
                 orderList.appendChild(li);
             });
+            }
+            else{
+                alert("not authorized");
+                document.querySelector(".container").innerHTML = 'Not AUTH<br> <a href = "/users"><button>Login</button></a>';
+            }
+
+            if(localStorage.getItem('role') === 'admin')
+            {
+                document.getElementById('walls').style.display = 'block';
+            }
         }
 
         async function fetchProducts() {

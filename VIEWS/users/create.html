@@ -28,13 +28,20 @@
         margin-bottom: 20px;
         color: #333;
     }
-    input {
+    input, select {
         width: 90%;
         padding: 10px;
         margin: 10px 0;
         border: 1px solid #ccc;
         border-radius: 5px;
         display: block;
+        font-size: 16px;
+    }
+    select.admin {
+        border: 2px solid red;
+    }
+    select.general {
+        border: 2px solid blue;
     }
     button {
         width: 100%;
@@ -62,6 +69,10 @@
     <form id="registerForm">
         <input type="text" id="name" placeholder="Username" required><br>
         <input type="password" id="password" placeholder="Password" required><br>
+        <select id="role">
+            <option value="general">General User</option>
+            <option value="admin">Admin</option>
+        </select>
         <button type="submit">Register</button>
     </form>
     <p id="message"></p><br><br>
@@ -70,19 +81,47 @@
     
 
     <script>
+        document.getElementById("role").addEventListener("change", function() {
+            this.className = this.value;
+        });
+
         document.getElementById("registerForm").addEventListener("submit", async (e) => {
             e.preventDefault();
             const name = document.getElementById("name").value;
             const password = document.getElementById("password").value;
+            const role = document.getElementById('role').value;
+            const message = document.getElementById("message");
 
-            const res = await fetch("/users/register", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name, password })
-            });
+            // Password validation
+            const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+            if (!passwordRegex.test(password)) {
+                message.innerText = "Password must be at least 8 characters, include 1 uppercase letter, 1 number, and 1 special character.";
+                message.className = "error";
+                return;
+            }
 
+            try {
+        const res = await fetch("/users/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, password, role })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            throw new Error(data.message);
+        }
+
+            message.innerText = "Registration successful!";
+            message.className = "success";
+        } catch (err) {
+            message.innerText = err.message;
+            message.className = "error";
+        }
             const data = await res.json();
-            document.getElementById("message").innerText = data.message;
+            message.innerText = data.message;
+            message.className = res.ok ? "success" : "error";
         });
     </script>
 </body>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Manage Products</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f4f9; text-align: center; }
+        .container { width: 80%; margin: 20px auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
+        .product-list { margin-top: 20px; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Manage Products</h2>
+        <ul id="productList" class="product-list">
+            <% products.forEach(product => { %>
+                <li>
+                    Name: <%= product.name %>, Price: <%= product.price %> 
+                    <button onclick="deleteProduct('<%= product._id %>')">Delete</button>
+                </li>
+            <% }) %>
+        </ul>
+
+        <h3>Add New Product</h3>
+        <input type="text" id="productName" placeholder="Product Name">
+        <input type="number" id="productPrice" placeholder="Price">
+        <button onclick="addProduct()">Add Product</button>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async function () {
+            const container = document.querySelector(".container");
+            token = localStorage.getItem('token');
+            role = localStorage.getItem('role')
+            try {
+        const response = await fetch('/users/admin', {
+            method: 'GET',
+            headers: {
+                'Authorization': token
+            }
+        });
+
+        if (!response.ok || role != 'admin') {
+            throw new Error('Unauthorized');
+            container.style.display = "none"; 
+            window.location.href = "/users";
+
+        }
+
+        if(role === 'admin'){
+        const data = await response.json();
+        console.log('Admin access granted:', data);
+        return true;
+        }
+    } catch (error) {
+        console.log('Access denied:', error.message);
+        container.style.display = "none"; 
+        window.location.href = "/users  ";
+    }
+        });
+        async function deleteProduct(productId) {
+            await fetch(`/admin-prod/delete/${productId}`, { method: "DELETE" });
+            location.reload();
+        }
+
+        async function addProduct() {
+            let name = document.getElementById("productName").value;
+            let price = document.getElementById("productPrice").value;
+            
+            await fetch("/admin-prod/add", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, price })
+            });
+
+            location.reload();
+        }
+    </script>
+</body>
+</html>
