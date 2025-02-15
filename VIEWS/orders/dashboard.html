@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; background: #f4f4f9; }
+        .container { width: 80%; margin: 20px auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
+        .order-list { margin-top: 20px; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Your Orders</h2>
+        <ul id="orderList" class="order-list"></ul>
+
+        <h3>Add New Order</h3>
+        <select id="productSelect"></select>
+        <input type="number" id="quantity" min="1" placeholder="Quantity">
+        <button onclick="addOrder()">Add Order</button>
+    </div>
+
+    <script>
+        const userId = localStorage.getItem('user_id'); 
+        
+        async function fetchOrders() {
+            let res = await fetch(`/orders/${userId}`);
+            let orders = await res.json();
+            let orderList = document.getElementById("orderList");
+            orderList.innerHTML = "";
+            orders.forEach(order => {
+                let li = document.createElement("li");
+                li.textContent = `Product: ${order.productId.name}, Quantity: ${order.quantity}, Status: ${order.status}`;
+                orderList.appendChild(li);
+            });
+        }
+
+        async function fetchProducts() {
+    try {
+        let res = await fetch("/products/get");
+        let products = await res.json();
+
+        let productSelect = document.getElementById("productSelect");
+        productSelect.innerHTML = ""; 
+
+        products.forEach(product => {
+            let option = document.createElement("option");
+            option.value = product.id;  
+            option.textContent = `${product.name} - ${product.price}`;
+            productSelect.appendChild(option);
+        });
+    } catch (error) {
+        console.error("Error fetching products:", error);
+    }
+}
+
+
+        async function addOrder() {
+            let productId = document.getElementById("productSelect").value;
+            let quantity = document.getElementById("quantity").value;
+            
+            let res = await fetch("/orders/create", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userId, productId, quantity })
+            });
+
+            let data = await res.json();
+            alert(data.message);
+            fetchOrders();
+        }
+        document.addEventListener("DOMContentLoaded", async function () {
+        fetchOrders();
+        fetchProducts();
+    });
+    </script>
+</body>
+</html>
