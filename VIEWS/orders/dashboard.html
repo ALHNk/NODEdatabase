@@ -32,7 +32,8 @@
             orderList.innerHTML = "";
             orders.forEach(order => {
                 let li = document.createElement("li");
-                li.textContent = `Product: ${order.productId.name}, Quantity: ${order.quantity}, Status: ${order.status}`;
+                li.innerHTML = `Product: ${order.productId.name}, Quantity: ${order.quantity}, Status: ${order.status}
+                <button onclick="deleteOrder('${order._id}')">Delete</button>`;
                 orderList.appendChild(li);
             });
         }
@@ -54,6 +55,13 @@
     } catch (error) {
         console.error("Error fetching products:", error);
     }
+}
+
+async function deleteOrder(orderId) {
+    let res = await fetch(`/orders/delete${orderId}`, {
+        method: "DELETE"
+    });
+    location.reload();
 }
 
 

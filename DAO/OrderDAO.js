@@ -14,11 +14,14 @@ const Order = mongoose.model("Order", orderSchema);
 const OrderDAO = {
     async getUserOrders(userId) {
         return await Order.find({ userId }).populate("productId", "name ")  
-        .select("-_id productId quantity status createdAt");
+        .select("_id productId quantity status createdAt");
     },
 
     async createOrder(userId, productId, quantity) {
         return await Order.create({ userId, productId, quantity });
+    },
+    async deleteOrder(orderId) {
+        return await Order.findByIdAndDelete(orderId);
     }
 };
 

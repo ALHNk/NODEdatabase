@@ -23,4 +23,19 @@ router.post("/create", async (req, res) => {
     }
 });
 
+router.delete("/delete:orderId", async (req, res) => {
+    try {
+        const { orderId } = req.params;
+        const deletedOrder = await OrderDAO.deleteOrder(orderId);
+
+        if (!deletedOrder) {
+            return res.status(404).json({ message: "Order not found" });
+        }
+
+        res.status(200).json({ message: "Order deleted successfully" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
 module.exports = router;
