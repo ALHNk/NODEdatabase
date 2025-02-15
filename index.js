@@ -9,8 +9,6 @@ const orderRouter = require('./routers/OrderRouter')
 const productRouter = require('./routers/productRouter')
 
 
-const mongoose = require("mongoose");
-
 const connectDB = async () => {
     try {
         await mongoose.connect(process.env.MONGO_URI, {
