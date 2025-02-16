@@ -9,10 +9,10 @@ const jwt = require('jsonwebtoken');
 const router = express.Router();
 
 router.get('/', (req, res) =>{
-    res.sendFile(path.join(__dirname, "../VIEWS/users/read.html"))
+    res.sendFile(path.join(__dirname, "../views/users/read.html"))
 });
 router.get('/add', (req, res) =>{
-    res.sendFile(path.join(__dirname, "../VIEWS/users/create.html"))
+    res.sendFile(path.join(__dirname, "../views/users/create.html"))
 });
 
 router.post('/login', async (req, res) => {
