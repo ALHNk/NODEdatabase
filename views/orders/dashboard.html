@@ -23,6 +23,7 @@
     </div>
 
     <a href = "/admin-prod" id = "walls" style="display: none;"><button >Change Products</button></a>
+    <button id = "logout" onclick="logout()"></button>
 
     <script>
         const userId = localStorage.getItem('user_id'); 
@@ -99,6 +100,10 @@ async function deleteOrder(orderId) {
         fetchOrders();
         fetchProducts();
     });
+    function logout()
+    {
+        window.location.href = "/login"; 
+    }
     </script>
 </body>
 </html>
