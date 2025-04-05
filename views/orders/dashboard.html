@@ -23,7 +23,7 @@
     </div>
 
     <a href = "/admin-prod" id = "walls" style="display: none;"><button >Change Products</button></a>
-    <button id = "logout" onclick="logout()"></button>
+    <button id = "logout" onclick="logout()">Logout</button>
 
     <script>
         const userId = localStorage.getItem('user_id'); 
@@ -102,7 +102,7 @@ async function deleteOrder(orderId) {
     });
     function logout()
     {
-        window.location.href = "/login"; 
+        window.location.href = "/users"; 
     }
     </script>
 </body>
