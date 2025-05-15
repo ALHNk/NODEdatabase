@@ -5,10 +5,95 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; background: #f4f4f9; }
-        .container { width: 80%; margin: 20px auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
-        .order-list { margin-top: 20px; }
-        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to right, #eef2f3, #8e9eab);
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 90%;
+            max-width: 800px;
+            margin: 40px auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h2, h3 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        ul.order-list {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+        ul.order-list li {
+            background: #f9f9f9;
+            padding: 15px 20px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .order-actions button {
+            padding: 8px 12px;
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s ease-in-out;
+        }
+        .order-actions button:hover {
+            background-color: #cc0000;
+        }
+        select, input[type="number"] {
+            padding: 10px;
+            margin: 10px 5px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+            width: calc(50% - 20px);
+        }
+        button {
+            padding: 10px 20px;
+            margin-top: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            transition: background 0.2s ease-in-out;
+        }
+        button:hover {
+            background-color: #388e3c;
+        }
+        #logout {
+            margin-top: 30px;
+            background-color: #607d8b;
+        }
+        #logout:hover {
+            background-color: #455a64;
+        }
+        #walls {
+            margin-top: 20px;
+            display: inline-block;
+        }
+        #walls button {
+            background-color: #2196f3;
+        }
+        #walls button:hover {
+            background-color: #1565c0;
+        }
     </style>
 </head>
 <body>
@@ -22,65 +107,62 @@
         <button onclick="addOrder()">Add Order</button>
     </div>
 
-    <a href = "/admin-prod" id = "walls" style="display: none;"><button >Change Products</button></a>
-    <button id = "logout" onclick="logout()">Logout</button>
+    <a href="/admin-prod" id="walls" style="display: none;">
+        <button>Change Products</button>
+    </a>
+    <button id="logout" onclick="logout()">Logout</button>
 
     <script>
         const userId = localStorage.getItem('user_id'); 
         const token = localStorage.getItem('token'); 
         
-        
         async function fetchOrders() {
             let res = await fetch(`/orders/${userId}`);
-            if(res.ok)
-            {
-            let orders = await res.json();
-            let orderList = document.getElementById("orderList");
-            orderList.innerHTML = "";
-            orders.forEach(order => {
-                let li = document.createElement("li");
-                li.innerHTML = `Product: ${order.productId.name}, Quantity: ${order.quantity}, Status: ${order.status}
-                <button onclick="deleteOrder('${order._id}')">Delete</button>;`
-                orderList.appendChild(li);
-            });
-            }
-            else{
+            if (res.ok) {
+                let orders = await res.json();
+                let orderList = document.getElementById("orderList");
+                orderList.innerHTML = "";
+                orders.forEach(order => {
+                    let li = document.createElement("li");
+                    li.innerHTML = `
+                        <div><strong>Product:</strong> ${order.productId.name}<br><strong>Quantity:</strong> ${order.quantity}<br><strong>Status:</strong> ${order.status}</div>
+                        <div class="order-actions"><button onclick="deleteOrder('${order._id}')">Delete</button></div>
+                    `;
+                    orderList.appendChild(li);
+                });
+            } else {
                 alert("not authorized");
-                document.querySelector(".container").innerHTML = 'Not AUTH<br> <a href = "/users"><button>Login</button></a>';
+                document.querySelector(".container").innerHTML = 'Not AUTH<br> <a href="/users"><button>Login</button></a>';
             }
 
-            if(localStorage.getItem('role') === 'admin')
-            {
-                document.getElementById('walls').style.display = 'block';
+            if (localStorage.getItem('role') === 'admin') {
+                document.getElementById('walls').style.display = 'inline-block';
             }
         }
 
         async function fetchProducts() {
-    try {
-        let res = await fetch("/products/get");
-        let products = await res.json();
+            try {
+                let res = await fetch("/products/get");
+                let products = await res.json();
+                let productSelect = document.getElementById("productSelect");
+                productSelect.innerHTML = ""; 
+                products.forEach(product => {
+                    let option = document.createElement("option");
+                    option.value = product.id;  
+                    option.textContent = `${product.name} - ${product.price}`;
+                    productSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error("Error fetching products:", error);
+            }
+        }
 
-        let productSelect = document.getElementById("productSelect");
-        productSelect.innerHTML = ""; 
-
-        products.forEach(product => {
-            let option = document.createElement("option");
-            option.value = product.id;  
-            option.textContent = `${product.name} - ${product.price}`;
-            productSelect.appendChild(option);
-        });
-    } catch (error) {
-        console.error("Error fetching products:", error);
-    }
-}
-
-async function deleteOrder(orderId) {
-    let res = await fetch(`/orders/delete${orderId}`, {
-        method: "DELETE"
-    });
-    location.reload();
-}
-
+        async function deleteOrder(orderId) {
+            let res = await fetch(`/orders/delete${orderId}`, {
+                method: "DELETE"
+            });
+            location.reload();
+        }
 
         async function addOrder() {
             let productId = document.getElementById("productSelect").value;
@@ -96,14 +178,15 @@ async function deleteOrder(orderId) {
             alert(data.message);
             fetchOrders();
         }
+
         document.addEventListener("DOMContentLoaded", async function () {
-        fetchOrders();
-        fetchProducts();
-    });
-    function logout()
-    {
-        window.location.href = "/users"; 
-    }
+            fetchOrders();
+            fetchProducts();
+        });
+
+        function logout() {
+            window.location.href = "/users"; 
+        }
     </script>
 </body>
 </html>
